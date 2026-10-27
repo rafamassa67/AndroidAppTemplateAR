@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta "Ártico" (tema escuro) -->
+    <color name="md_primary">#62D3F5</color>
+    <color name="md_on_primary">#003544</color>
+    <color name="md_primary_container">#004D61</color>
+    <color name="md_on_primary_container">#BDE9FF</color>
+    <color name="md_secondary">#B3CAD5</color>
+    <color name="md_on_secondary">#1E333B</color>
+    <color name="md_secondary_container">#354A53</color>
+    <color name="md_on_secondary_container">#CFE6F1</color>
+    <color name="md_tertiary">#FFB870</color>
+    <color name="md_on_tertiary">#4A2800</color>
+    <color name="md_tertiary_container">#693C00</color>
+    <color name="md_on_tertiary_container">#FFDCBE</color>
+    <color name="md_background">#0F1417</color>
+    <color name="md_on_background">#DEE3E6</color>
+    <color name="md_surface">#0F1417</color>
+    <color name="md_on_surface">#DEE3E6</color>
+    <color name="md_surface_variant">#40484C</color>
+    <color name="md_on_surface_variant">#C0C8CD</color>
+    <color name="md_outline">#8A9296</color>
+    <color name="md_error">#FFB4AB</color>
+
+    <color name="card_bg">#1B252B</color>
+    <color name="nav_bg">#162026</color>
+    <color name="overlay_surface">#EB141B1F</color>
+</resources>

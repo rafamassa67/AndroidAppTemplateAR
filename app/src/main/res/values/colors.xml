@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="darker_gray">#444445</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Paleta "Ártico" (tema claro) -->
+    <color name="md_primary">#00677F</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#BDE9FF</color>
+    <color name="md_on_primary_container">#001F2A</color>
+    <color name="md_secondary">#4C626B</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#CFE6F1</color>
+    <color name="md_on_secondary_container">#071E26</color>
+    <color name="md_tertiary">#8B5000</color>
+    <color name="md_on_tertiary">#FFFFFF</color>
+    <color name="md_tertiary_container">#FFDCBE</color>
+    <color name="md_on_tertiary_container">#2C1600</color>
+    <color name="md_background">#F5FAFC</color>
+    <color name="md_on_background">#171C1F</color>
+    <color name="md_surface">#F5FAFC</color>
+    <color name="md_on_surface">#171C1F</color>
+    <color name="md_surface_variant">#DCE4E9</color>
+    <color name="md_on_surface_variant">#40484C</color>
+    <color name="md_outline">#70787D</color>
+    <color name="md_error">#BA1A1A</color>
+
+    <!-- Superfícies customizadas -->
+    <color name="card_bg">#E6F0F5</color>
+    <color name="nav_bg">#EAF2F6</color>
+    <color name="overlay_surface">#EBFFFFFF</color>
 </resources>

@@ -8,7 +8,15 @@
     <string name="previous">Previous</string>
     <string name="template_ar">Template AR</string>
     <string name="thumbnail">example</string>
-    <string name="camera">camera</string>
-    <string name="change">change</string>
+    <string name="camera">Câmera</string>
+    <string name="change">Modelos</string>
     <string name="profile">profile</string>
+
+    <string name="place">Colocar</string>
+    <string name="baby">Bebê</string>
+    <string name="hint_find_surface">Mova o celular devagar e toque em Colocar</string>
+    <string name="hint_placed">Arraste para mover · gire com dois dedos</string>
+    <string name="models_title">Modelos 3D</string>
+    <string name="models_subtitle_format">%d modelos disponíveis</string>
+    <string name="model_tap_hint">Toque para ver em AR</string>
 </resources>

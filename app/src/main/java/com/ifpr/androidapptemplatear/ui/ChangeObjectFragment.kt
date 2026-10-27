@@ -1,17 +1,15 @@
 package com.ifpr.androidapptemplatear.ui
 
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -41,6 +39,13 @@ class ChangeObjectFragment : Fragment() {
 
         sharedViewModel =
             ViewModelProvider(requireActivity())[SharedModelViewModel::class.java]
+
+        // Com edge-to-edge o cabeçalho precisa descer a altura da status bar
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = bars.top)
+            insets
+        }
 
         carregarModelos()
     }
@@ -75,7 +80,8 @@ class ChangeObjectFragment : Fragment() {
             return
         }
 
-        adicionarTitulo(container)
+        view?.findViewById<TextView>(R.id.subtitle)?.text =
+            getString(R.string.models_subtitle_format, modelos.size)
 
         modelos.forEach { arquivo ->
             adicionarModelo(container, arquivo)
@@ -83,149 +89,36 @@ class ChangeObjectFragment : Fragment() {
     }
 
     /**
-     * Adiciona o título da lista de modelos.
-     */
-    private fun adicionarTitulo(container: LinearLayout?) {
-
-        val titulo = TextView(requireContext()).apply {
-
-            text = "Modelos 3D"
-
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_SP,
-                20f
-            )
-
-            setTypeface(null, Typeface.BOLD)
-
-            setTextColor(Color.BLACK)
-
-            setPadding(
-                0,
-                24,
-                0,
-                16
-            )
-        }
-
-        container?.addView(titulo)
-    }
-
-    /**
-     * Cria um item da lista para cada modelo encontrado.
+     * Cria um card para cada modelo encontrado.
+     * O card inteiro é clicável.
      */
     private fun adicionarModelo(
         container: LinearLayout?,
         arquivo: String
     ) {
+        val card = layoutInflater.inflate(R.layout.item_model, container, false)
 
-        val itemLayout = LinearLayout(requireContext()).apply {
+        val nomeModelo = arquivo.toModelTitle()
 
-            orientation = LinearLayout.HORIZONTAL
+        card.findViewById<TextView>(R.id.modelTitle).text = nomeModelo
+        card.findViewById<TextView>(R.id.modelAvatar).text =
+            nomeModelo.first().uppercase()
 
-            gravity = Gravity.CENTER_VERTICAL
+        card.setOnClickListener {
+            /*
+             * Informa para a tela da câmera
+             * qual modelo deve ser carregado.
+             */
+            sharedViewModel.selectModel(arquivo)
 
-            setPadding(
-                0,
-                12,
-                0,
-                12
-            )
-
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        /*
-         * Remove a extensão .glb e deixa o nome
-         * mais amigável para exibição.
-         *
-         * Exemplo:
-         * pikachu.glb -> Pikachu
-         * cadeira_escolar.glb -> Cadeira escolar
-         */
-        val nomeModelo = arquivo
-            .removeSuffix(".glb")
-            .removeSuffix(".GLB")
-            .replace("_", " ")
-            .replaceFirstChar {
-                if (it.isLowerCase()) {
-                    it.titlecase()
-                } else {
-                    it.toString()
-                }
-            }
-
-        val nome = TextView(requireContext()).apply {
-
-            text = nomeModelo
-
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_SP,
-                17f
-            )
-
-            setTextColor(Color.DKGRAY)
-
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
+            /*
+             * Abre a tela de Realidade Aumentada.
+             */
+            findNavController().navigate(
+                R.id.navigation_camera
             )
         }
 
-        val botao = Button(requireContext()).apply {
-
-            text = "Exibir"
-
-            setOnClickListener {
-
-                /*
-                 * Informa para a tela da câmera
-                 * qual modelo deve ser carregado.
-                 */
-                sharedViewModel.selectModel(arquivo)
-
-                /*
-                 * Abre a tela de Realidade Aumentada.
-                 */
-                findNavController().navigate(
-                    R.id.navigation_camera
-                )
-            }
-        }
-
-        itemLayout.addView(nome)
-        itemLayout.addView(botao)
-
-        container?.addView(itemLayout)
-
-        adicionarDivisor(container)
-    }
-
-    /**
-     * Adiciona uma linha separando os modelos.
-     */
-    private fun adicionarDivisor(
-        container: LinearLayout?
-    ) {
-
-        val divisor = View(requireContext()).apply {
-
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1
-            ).apply {
-
-                topMargin = 4
-                bottomMargin = 4
-            }
-
-            setBackgroundColor(Color.LTGRAY)
-        }
-
-        container?.addView(divisor)
+        container?.addView(card)
     }
 }

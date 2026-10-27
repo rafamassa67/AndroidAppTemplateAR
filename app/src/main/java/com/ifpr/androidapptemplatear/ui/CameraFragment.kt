@@ -4,14 +4,19 @@ import androidx.fragment.app.Fragment
 import com.ifpr.androidapptemplatear.R
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.ar.core.Config
@@ -28,12 +33,18 @@ class CameraFragment : Fragment() {
     private lateinit var sceneView: ArSceneView
     private lateinit var modelNode: ArModelNode
     private lateinit var placeButton: ExtendedFloatingActionButton
+    private lateinit var babyButton: ExtendedFloatingActionButton
+    private lateinit var modelNameText: TextView
+    private lateinit var hintText: TextView
 
     private lateinit var sharedViewModel: SharedModelViewModel
 
     private val CAMERA_PERMISSION_CODE = 1001
 
     private var currentModelFile: String = "neutrofilo.glb"
+
+    // Som tocado toda vez que um modelo é colocado (res/raw/dark_triad.mp3)
+    private var darkTriadPlayer: MediaPlayer? = null
 
     private var _binding: FragmentCameraBinding? = null
 
@@ -46,7 +57,6 @@ class CameraFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        super.onCreate(savedInstanceState)
         sharedViewModel = ViewModelProvider(requireActivity())[SharedModelViewModel::class.java]
         sharedViewModel.selectedModel.observe(viewLifecycleOwner) { path ->
             loadModel(path)
@@ -58,10 +68,28 @@ class CameraFragment : Fragment() {
             lightEstimationMode = Config.LightEstimationMode.DISABLED
         }
 
-        placeButton = view.findViewById(R.id.place)
+        modelNameText = view.findViewById(R.id.modelName)
+        hintText = view.findViewById(R.id.hintText)
+        modelNameText.text = currentModelFile.toModelTitle()
 
+        placeButton = view.findViewById(R.id.place)
         placeButton.setOnClickListener {
             placeModel()
+        }
+
+        babyButton = view.findViewById(R.id.babyButton)
+        babyButton.setOnClickListener {
+            switchToBaby()
+        }
+
+        // Com edge-to-edge a barra superior precisa descer a altura da status bar
+        val topBar = view.findViewById<View>(R.id.topBar)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            topBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = bars.top + dp(12)
+            }
+            insets
         }
 
         return view
@@ -69,7 +97,13 @@ class CameraFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        releasePlayer()
         _binding = null
+    }
+
+    override fun onStop() {
+        super.onStop()
+        releasePlayer()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -79,11 +113,53 @@ class CameraFragment : Fragment() {
     }
 
     private fun placeModel() {
+        if (!::modelNode.isInitialized) return
+
         modelNode.anchor()
         modelNode.isEditable = true
         modelNode.isScaleEditable = false
 
         sceneView.planeRenderer.isVisible = false
+        hintText.setText(R.string.hint_placed)
+
+        playDarkTriad()
+    }
+
+    /**
+     * Toca o dark_triad toda vez que um modelo é colocado.
+     * Se já estiver tocando, reinicia do começo.
+     */
+    private fun playDarkTriad() {
+        releasePlayer()
+        darkTriadPlayer = MediaPlayer.create(requireContext(), R.raw.dark_triad)?.apply {
+            setOnCompletionListener { mp ->
+                mp.release()
+                if (darkTriadPlayer === mp) darkTriadPlayer = null
+            }
+            start()
+        }
+    }
+
+    private fun releasePlayer() {
+        darkTriadPlayer?.let {
+            try {
+                it.release()
+            } catch (_: Exception) {
+            }
+        }
+        darkTriadPlayer = null
+    }
+
+    /**
+     * TESTE: independente do modelo atual, vira a morsa bebê.
+     * Depois dá pra trocar por um mapa "modelo -> versão bebê" (ver BABY_MODEL).
+     */
+    private fun switchToBaby() {
+        if (!::modelNode.isInitialized) {
+            Toast.makeText(requireContext(), "Aguarde a câmera iniciar", Toast.LENGTH_SHORT).show()
+            return
+        }
+        loadModel(BABY_MODEL)
     }
 
     private fun checkCameraPermission() {
@@ -124,6 +200,10 @@ class CameraFragment : Fragment() {
 
         }
 
+        currentModelFile = fileName
+        modelNameText.text = fileName.toModelTitle()
+        hintText.setText(R.string.hint_find_surface)
+
         modelNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
                 glbFileLocation = getFilePath(requireContext(),fileName),
@@ -154,5 +234,13 @@ class CameraFragment : Fragment() {
                 return "Arquivo não encontrado em assets nem em filesDir: $fileName"
             }
         }
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
+
+    companion object {
+        /** Modelo usado pelo botão "Bebê" (por enquanto o mesmo para qualquer modelo). */
+        private const val BABY_MODEL = "morsa_bebe.glb"
     }
 }
